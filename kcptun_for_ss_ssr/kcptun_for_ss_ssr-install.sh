@@ -358,7 +358,7 @@ get_latest_version(){
     if [[ "${ssr_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${ssr_installed_flag}" == "true" && "${clang_action}" =~ ^[Uu]|[Uu][Pp][Dd][Aa][Tt][Ee]|-[Uu]|--[Uu]|[Uu][Pp]|-[Uu][Pp]|--[Uu][Pp]$ ]]; then
         echo -e "Loading latest version for ShadowsocksR, please wait..."
         ssr_download_link="https://github.com/shadowsocksr/shadowsocksr/archive/manyuser.zip"
-        ssr_latest_ver=$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/breakwa11/shadowsocks/manyuser/CHANGES | head -n 1 | awk '{print $1}')
+        ssr_latest_ver=$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/shadowsocksr/shadowsocksr/manyuser/CHANGES | head -n 1 | awk '{print $1}')
         if check_sys packageManager yum; then
             ssr_init_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/ssr.init"
         elif check_sys packageManager apt; then
