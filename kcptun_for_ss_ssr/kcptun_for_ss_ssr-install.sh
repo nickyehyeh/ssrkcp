@@ -7,7 +7,7 @@ export PATH
 #   Author: Clang
 #   Intro:  http://koolshare.cn/forum-72-1.html
 #===============================================================================================
-version="1.4"
+version="1.5"
 shell_download_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/kcptun_for_ss_ssr-install.sh"
 ss_libev_config="/etc/shadowsocks-libev/config.json"
 ssr_config="/usr/local/shadowsocksR/shadowsocksR.json"
@@ -357,7 +357,7 @@ get_latest_version(){
     fi
     if [[ "${ssr_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${ssr_installed_flag}" == "true" && "${clang_action}" =~ ^[Uu]|[Uu][Pp][Dd][Aa][Tt][Ee]|-[Uu]|--[Uu]|[Uu][Pp]|-[Uu][Pp]|--[Uu][Pp]$ ]]; then
         echo -e "Loading latest version for ShadowsocksR, please wait..."
-        ssr_download_link="https://github.com/breakwa11/shadowsocks/archive/manyuser.zip"
+        ssr_download_link="https://github.com/shadowsocksr/shadowsocksr/archive/manyuser.zip"
         ssr_latest_ver=$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/breakwa11/shadowsocks/manyuser/CHANGES | head -n 1 | awk '{print $1}')
         if check_sys packageManager yum; then
             ssr_init_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/ssr.init"
@@ -463,11 +463,11 @@ EOF
     cat > ${ssr_config}<<-EOF
 {
     "server":"0.0.0.0",
-    "server_ipv6":"::",
-    "server_port":${set_ssr_port},
     "local_address":"127.0.0.1",
     "local_port":${ssr_local_port},
-    "password":"${set_ssr_pwd}",
+    "port_password":{
+        "${set_ssr_port}":"${set_ssr_pwd}"
+    },
     "timeout":120,
     "method":"${set_ssr_method}",
     "protocol":"${set_ssr_protocol}",
@@ -738,7 +738,7 @@ show_kcptun_for_ss_ssr(){
         echo "=========================================================="
     fi
     if [ "${ssr_install_flag}" == "true" ]; then
-        echo "-------------------- SS-libev Setting --------------------"
+        echo "-------------------- ShadowsocksR Setting --------------------"
         echo -e "SSR Server Port            : ${COLOR_GREEN}${set_ssr_port}${COLOR_END}"
         echo -e "SSR Password               : ${COLOR_GREEN}${set_ssr_pwd}${COLOR_END}"
         echo -e "SSR Encryption Method      : ${COLOR_GREEN}${set_ssr_method}${COLOR_END}"
