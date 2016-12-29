@@ -566,7 +566,7 @@ install_kcptun_for_ss_ssr(){
     if [[ "${ssr_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${ssr_installed_flag}" == "true" && "${ssr_update_flag}" == "true" && "${clang_action}" =~ ^[Uu]|[Uu][Pp][Dd][Aa][Tt][Ee]|-[Uu]|--[Uu]|[Uu][Pp]|-[Uu][Pp]|--[Uu][Pp]$ ]]; then
         cd ${cur_dir}
         unzip -qo manyuser.zip
-        mv shadowsocks-manyuser/shadowsocks /usr/local/shadowsocksR
+        mv shadowsocksr-manyuser/shadowsocks/ /usr/local/shadowsocksR
         if [ -x /usr/local/shadowsocksR/shadowsocks/server.py ] && [ -s /usr/local/shadowsocksR/shadowsocks/__init__.py ]; then
             chmod +x /etc/init.d/ssr
             if check_sys packageManager yum; then
