@@ -287,7 +287,7 @@ Dispaly_Selection(){
 # Install cleanup
 install_cleanup(){
     cd ${cur_dir}
-    rm -rf ${shadowsocks_libev_ver} ${shadowsocks_libev_ver}.tar.gz manyuser.zip shadowsocks-manyuser ${libsodium_latest_file} ${libsodium_ver} ${kcptun_latest_file}
+    rm -rf ${shadowsocks_libev_ver} ${shadowsocks_libev_ver}.tar.gz manyuser.zip shadowsocksr-manyuser shadowsocks-manyuser ${libsodium_latest_file} ${libsodium_ver} ${kcptun_latest_file}
 }
 check_kcptun_for_ss_ssr_installed(){
     ss_libev_installed_flag=""
