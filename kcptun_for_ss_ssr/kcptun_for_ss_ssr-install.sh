@@ -7,7 +7,7 @@ export PATH
 #   Author: Clang
 #   Intro:  http://koolshare.cn/forum-72-1.html
 #===============================================================================================
-version="1.5.1"
+version="1.5.2"
 shell_download_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/kcptun_for_ss_ssr-install.sh"
 ss_libev_config="/etc/shadowsocks-libev/config.json"
 ssr_config="/usr/local/shadowsocksR/shadowsocksR.json"
@@ -1032,13 +1032,11 @@ pre_install_kcptun_for_ss_ssr(){
         echo "  1: origin (default)"
         echo "  2: verify_sha1_compatible"
         echo "  3: verify_sha1"
-        echo "  4: auth_sha1_compatible"
-        echo "  5: auth_sha1"
-        echo "  6: auth_sha1_v2_compatible"
-        echo "  7: auth_sha1_v2"
-        echo "  8: auth_sha1_v4_compatible"
-        echo "  9: auth_sha1_v4"
-        echo " 10: auth_aes128"
+        echo "  4: auth_sha1"
+        echo "  5: auth_sha1_v2"
+        echo "  6: auth_sha1_v4"
+        echo "  7: auth_aes128_md5"
+        echo "  8: auth_aes128_sha1"
         read -p "Enter your choice (1, 2, 3, ... or exit. default [${def_ssr_protocol}]): " set_ssr_protocol
         case "${set_ssr_protocol}" in
             1|[Oo][Rr][Ii][Gg][Ii][Nn])
@@ -1050,26 +1048,20 @@ pre_install_kcptun_for_ss_ssr(){
             3|[Vv][Ee][Rr][Ii][Ff][Yy]_[Ss][Hh][Aa]1)
                 set_ssr_protocol="verify_sha1"
                 ;;
-            4|[Aa][Uu][Tt][Hh]_[Ss][Hh][Aa]1_[Cc][Oo][Mm][Pp][Aa][Tt][Ii][Bb][Ll][Ee])
-                set_ssr_protocol="auth_sha1_compatible"
-                ;;
-            5|[Aa][Uu][Tt][Hh]_[Ss][Hh][Aa]1)
+            4|[Aa][Uu][Tt][Hh]_[Ss][Hh][Aa]1)
                 set_ssr_protocol="auth_sha1"
                 ;;
-            6|[Aa][Uu][Tt][Hh]_[Ss][Hh][Aa]1_[Vv]2_[Cc][Oo][Mm][Pp][Aa][Tt][Ii][Bb][Ll][Ee])
-                set_ssr_protocol="auth_sha1_v2_compatible"
-                ;;
-            7|[Aa][Uu][Tt][Hh]_[Ss][Hh][Aa]1_[Vv]2)
+            5|[Aa][Uu][Tt][Hh]_[Ss][Hh][Aa]1_[Vv]2)
                 set_ssr_protocol="auth_sha1_v2"
                 ;;
-            8|[Aa][Uu][Tt][Hh]_[Ss][Hh][Aa]1_[Vv]4_[Cc][Oo][Mm][Pp][Aa][Tt][Ii][Bb][Ll][Ee])
-                set_ssr_protocol="auth_sha1_v4_compatible"
-                ;;
-            9|[Aa][Uu][Tt][Hh]_[Ss][Hh][Aa]1_[Vv]4)
+            6|[Aa][Uu][Tt][Hh]_[Ss][Hh][Aa]1_[Vv]4)
                 set_ssr_protocol="auth_sha1_v4"
                 ;;
-            10|[Aa][Uu][Tt][Hh]_[Aa][Ee][Ss]128)
-                set_ssr_protocol="auth_aes128"
+            7|[Aa][Uu][Tt][Hh]_[Aa][Ee][Ss]128_[Mm][Dd]5)
+                set_ssr_protocol="auth_aes128_md5"
+                ;;
+            8|[Aa][Uu][Tt][Hh]_[Aa][Ee][Ss]128_[Ss][Hh][Aa]5)
+                set_ssr_protocol="auth_aes128_sha1"
                 ;;
             [eE][xX][iI][tT])
                 exit 1
