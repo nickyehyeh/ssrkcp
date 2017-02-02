@@ -568,7 +568,6 @@ uninstall_program_server_clang(){
 update_config_clang(){
     if [ ! -r "${str_program_dir}/${program_config_file}" ]; then
         echo "config file ${str_program_dir}/${program_config_file} not found."
-        return 1
     else
         search_dashboard_user=`grep "dashboard_user" ${str_program_dir}/${program_config_file}`
         search_dashboard_pwd=`grep "dashboard_pwd" ${str_program_dir}/${program_config_file}`
