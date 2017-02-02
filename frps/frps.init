@@ -26,9 +26,7 @@ NAME=frps
 BIN=${ProgramPath}/${NAME}
 CONFIGFILE=${ProgramPath}/frps.ini
 SCRIPTNAME=/etc/init.d/${NAME}
-PID_DIR=/var/run
-PID_FILE=${PID_DIR}/${ProgramName}.pid
-version="1.0"
+version="1.1"
 program_version=`${BIN} --version`
 RET_VAL=0
 
@@ -46,10 +44,10 @@ fun_clangcn()
 }
 
 fun_check_run(){
-    if netstat -ntupl | grep -q ${NAME};then
+    PID=`ps -ef | grep -v grep | grep -i "${BIN}" | awk '{print $2}'`
+    if [ ! -z $PID ]; then
         return 0
     else
-        rm -f ${PID_FILE}
         return 1
     fi
 }
@@ -64,24 +62,20 @@ fun_start()
     if [ "${arg1}" = "start" ]; then
       fun_clangcn
     fi
-    if [ ! -d ${PID_DIR} ]; then
-        mkdir -p ${PID_DIR} || echo "failed creating PID directory ${PID_DIR}";
-        exit 1
-    fi
     if fun_check_run; then
-        echo "${ProgramName} (pid `pidof $NAME`) already running."
+        echo "${ProgramName} (pid $PID) already running."
         return 0
     fi
     fun_load_config
     echo -n "Starting ${ProgramName}(${program_version})..."
     ${BIN} -c ${CONFIGFILE} >/dev/null 2>&1 &
-    sleep 0.3
+    sleep 1
     if ! fun_check_run; then
         echo "start failed"
         return 1
     fi
     echo " done"
-    echo "${ProgramName} (pid `pidof $NAME`)is running."
+    echo "${ProgramName} (pid $PID)is running."
     return 0
 }
 
@@ -90,14 +84,13 @@ fun_stop(){
       fun_clangcn
     fi
     if fun_check_run; then
-        echo -n "Stoping ${ProgramName} (pid `pidof $NAME`)... "
-        kill `pidof $NAME`
+        echo -n "Stoping ${ProgramName} (pid $PID)... "
+        kill $PID
         if [ "$?" != 0 ] ; then
             echo " failed"
             return 1
         else
             echo " done"
-            rm -f $PID_FILE
         fi
     else
         echo "${ProgramName} is not running."
@@ -109,14 +102,13 @@ fun_restart(){
     fun_start
 }
 fun_status(){
-    if netstat -ntulp | grep -q ${NAME}; then
-        PID=`pidof ${NAME}`
+    PID=`ps -ef | grep -v grep | grep -i "${BIN}" | awk '{print $2}'`
+    if [ ! -z $PID ]; then
         echo "${ProgramName} (pid $PID) is running..."
-        netstat -ntulp | grep "${NAME}"
     else
         echo "${ProgramName} is stopped"
+        exit 0
     fi
-    return 0
 }
 checkos(){
     if grep -Eqi "CentOS" /etc/issue || grep -Eq "CentOS" /etc/*-release; then
