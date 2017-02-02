@@ -566,28 +566,33 @@ uninstall_program_server_clang(){
 }
 ############################### update ##################################
 update_config_clang(){
-    search_dashboard_user=`grep "dashboard_user" ${str_program_dir}/${program_config_file}`
-    search_dashboard_pwd=`grep "dashboard_pwd" ${str_program_dir}/${program_config_file}`
-    if [ -z "${search_dashboard_user}" ] && [ -z "${search_dashboard_pwd}" ];then
-        echo -e "${COLOR_GREEN}Configuration files need to be updated, now setting:${COLOR_END}"
-        echo ""
-        def_dashboard_user_update="admin"
-        read -p "Please input dashboard_user (Default: ${def_dashboard_user_update}):" set_dashboard_user_update
-        [ -z "${set_dashboard_user_update}" ] && set_dashboard_user_update="${def_dashboard_user_update}"
-        echo "${program_name} dashboard_user: ${set_dashboard_user_update}"
-        echo ""
-        def_dashboard_pwd_update=`fun_randstr 8`
-        read -p "Please input dashboard_pwd (Default: ${def_dashboard_pwd_update}):" set_dashboard_pwd_update
-        [ -z "${set_dashboard_pwd_update}" ] && set_dashboard_pwd_update="${def_dashboard_pwd_update}"
-        echo "${program_name} dashboard_pwd: ${set_dashboard_pwd_update}"
-        echo ""
-        sed -i "/dashboard_port =.*/a\dashboard_user = ${set_dashboard_user_update}\ndashboard_pwd = ${set_dashboard_pwd_update}\n" ${str_program_dir}/${program_config_file}
-        verify_dashboard_user=`grep "dashboard_user" ${str_program_dir}/${program_config_file}`
-        verify_dashboard_pwd=`grep "dashboard_pwd" ${str_program_dir}/${program_config_file}`
-        if [ ! -z "${verify_dashboard_user}" ] && [ ! -z "${verify_dashboard_pwd}" ];then
-            echo -e "${COLOR_GREEN}update configuration file successfully!!!${COLOR_END}"
-        else
-            echo -e "${COLOR_RED}update configuration file error!!!${COLOR_END}"
+    if [ ! -r "${str_program_dir}/${program_config_file}" ]; then
+        echo "config file ${str_program_dir}/${program_config_file} not found."
+        return 1
+    else
+        search_dashboard_user=`grep "dashboard_user" ${str_program_dir}/${program_config_file}`
+        search_dashboard_pwd=`grep "dashboard_pwd" ${str_program_dir}/${program_config_file}`
+        if [ -z "${search_dashboard_user}" ] && [ -z "${search_dashboard_pwd}" ];then
+            echo -e "${COLOR_GREEN}Configuration files need to be updated, now setting:${COLOR_END}"
+            echo ""
+            def_dashboard_user_update="admin"
+            read -p "Please input dashboard_user (Default: ${def_dashboard_user_update}):" set_dashboard_user_update
+            [ -z "${set_dashboard_user_update}" ] && set_dashboard_user_update="${def_dashboard_user_update}"
+            echo "${program_name} dashboard_user: ${set_dashboard_user_update}"
+            echo ""
+            def_dashboard_pwd_update=`fun_randstr 8`
+            read -p "Please input dashboard_pwd (Default: ${def_dashboard_pwd_update}):" set_dashboard_pwd_update
+            [ -z "${set_dashboard_pwd_update}" ] && set_dashboard_pwd_update="${def_dashboard_pwd_update}"
+            echo "${program_name} dashboard_pwd: ${set_dashboard_pwd_update}"
+            echo ""
+            sed -i "/dashboard_port =.*/a\dashboard_user = ${set_dashboard_user_update}\ndashboard_pwd = ${set_dashboard_pwd_update}\n" ${str_program_dir}/${program_config_file}
+            verify_dashboard_user=`grep "dashboard_user" ${str_program_dir}/${program_config_file}`
+            verify_dashboard_pwd=`grep "dashboard_pwd" ${str_program_dir}/${program_config_file}`
+            if [ ! -z "${verify_dashboard_user}" ] && [ ! -z "${verify_dashboard_pwd}" ];then
+                echo -e "${COLOR_GREEN}update configuration file successfully!!!${COLOR_END}"
+            else
+                echo -e "${COLOR_RED}update configuration file error!!!${COLOR_END}"
+            fi
         fi
     fi
 }
