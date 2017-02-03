@@ -7,7 +7,7 @@ export PATH
 #   Author: Clang
 #   Intro:  http://koolshare.cn/forum-72-1.html
 #===============================================================================================
-version="1.5.2"
+version="1.5.3"
 shell_download_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/kcptun_for_ss_ssr-install.sh"
 ss_libev_config="/etc/shadowsocks-libev/config.json"
 ssr_config="/usr/local/shadowsocksR/shadowsocksR.json"
@@ -330,7 +330,8 @@ get_latest_version(){
         fi
         ss_libev_api_file="${cur_dir}/.api_ss_libev.txt"
         wget --no-check-certificate -qO- ${ss_libev_latest_api} > ${ss_libev_api_file}
-        ss_latest_ver=$(cat ${ss_libev_api_file} | grep 'tag_name' | cut -d\" -f4)
+        #ss_latest_ver=$(cat ${ss_libev_api_file} | grep 'tag_name' | cut -d\" -f4)
+        ss_latest_ver="v2.5.6"
         [ -z ${ss_latest_ver} ] && echo "Error: Get shadowsocks-libev latest version failed" && exit 1
         shadowsocks_libev_ver="shadowsocks-libev-$(echo ${ss_latest_ver} | sed -e 's/^[a-zA-Z]//g')"
         ss_libev_download_link="https://github.com/shadowsocks/shadowsocks-libev/archive/${ss_latest_ver}.tar.gz"
