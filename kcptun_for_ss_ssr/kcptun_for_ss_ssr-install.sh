@@ -354,7 +354,7 @@ get_latest_version(){
         fi
         echo -e "Get the libsodium version:${COLOR_GREEN} ${LIBSODIUM_VER}${COLOR_END}"
     fi
-    if [ ! +x /usr/local/bin/mbedtls_hello ] && [ ! -s /usr/local/include/mbedtls/version.h ]; then
+    if [ ! -x /usr/local/bin/mbedtls_hello ] && [ ! -s /usr/local/include/mbedtls/version.h ]; then
         echo -e "Loading mbedtls version, please wait..."
         mbedtls_laster_ver="mbedtls-${MBEDTLS_VER}"
         if [ "${mbedtls_laster_ver}" == "" ] || [ "${MBEDTLS_LINK}" == "" ]; then
@@ -403,7 +403,7 @@ down_kcptun_for_ss_ssr(){
             fi
         fi
     fi
-    if [ ! +x /usr/local/bin/mbedtls_hello ] && [ ! -s /usr/local/include/mbedtls/version.h ]; then
+    if [ ! -x /usr/local/bin/mbedtls_hello ] && [ ! -s /usr/local/include/mbedtls/version.h ]; then
         if [ -f ${mbedtls_laster_ver}-gpl.tgz ]; then
             echo "${mbedtls_laster_ver}-gpl.tgz [found]"
         else
@@ -547,7 +547,7 @@ install_kcptun_for_ss_ssr(){
         echo "/usr/lib" > /etc/ld.so.conf.d/local.conf
         ldconfig
     fi
-    if [ ! +x /usr/local/bin/mbedtls_hello ] && [ ! -s /usr/local/include/mbedtls/version.h ]; then
+    if [ ! -x /usr/local/bin/mbedtls_hello ] && [ ! -s /usr/local/include/mbedtls/version.h ]; then
         cd ${cur_dir}
         echo "Install mbedtls for SS-Liber..."
         tar xzf ${mbedtls_laster_ver}-gpl.tgz
