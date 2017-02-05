@@ -8,15 +8,41 @@ export PATH
 #   Intro:  http://koolshare.cn/forum-72-1.html
 #===============================================================================================
 version="1.5.3"
-shell_download_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/kcptun_for_ss_ssr-install.sh"
-ss_libev_config="/etc/shadowsocks-libev/config.json"
-ssr_config="/usr/local/shadowsocksR/shadowsocksR.json"
-kcptun_config="/usr/local/kcptun/config.json"
-# Check if user is root
 if [ $(id -u) != "0" ]; then
     echo "Error: You must be root to run this script, please use root to install SS/SSR/KCPTUN"
     exit 1
 fi
+shell_update(){
+    fun_clangcn "clear"
+    echo "Check updates for shell..."
+    remote_shell_version=`wget --no-check-certificate -qO- ${shell_download_link} | sed -n '/'^version'/p' | cut -d\" -f2`
+    if [ ! -z ${remote_shell_version} ]; then
+        if [[ "${version}" != "${remote_shell_version}" ]];then
+            echo -e "${COLOR_GREEN}Found a new version,update now!!!${COLOR_END}"
+            echo
+            echo -n "Update shell ..."
+            if ! wget --no-check-certificate -qO $0 ${shell_download_link}; then
+                echo -e " [${COLOR_RED}failed${COLOR_END}]"
+                echo
+                exit 1
+            else
+                echo -e " [${COLOR_GREEN}OK${COLOR_END}]"
+                echo
+                echo -e "${COLOR_GREEN}Please Re-run${COLOR_END} ${COLOR_PINK}$0 ${clang_action}${COLOR_END}"
+                echo
+                exit 1
+            fi
+            exit 1
+        fi
+    fi
+}
+shell_download_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/kcptun_for_ss_ssr-install.sh"
+program_version_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/version.sh"
+ss_libev_config="/etc/shadowsocks-libev/config.json"
+ssr_config="/usr/local/shadowsocksR/shadowsocksR.json"
+kcptun_config="/usr/local/kcptun/config.json"
+# Check if user is root
+
 contact_us="http://koolshare.cn/forum-72-1.html"
 fun_clangcn(){
     local clear_flag=""
@@ -43,30 +69,6 @@ fun_set_text_color(){
     COLOR_PINKBACK_WHITEFONT='\033[45;37m'
     COLOR_GREEN_LIGHTNING='\033[32m \033[05m'
     COLOR_END='\E[0m'
-}
-shell_update(){
-    fun_clangcn "clear"
-    echo "Check updates for shell..."
-    remote_shell_version=`wget --no-check-certificate -qO- ${shell_download_link} | sed -n '/'^version'/p' | cut -d\" -f2`
-    if [ ! -z ${remote_shell_version} ]; then
-        if [[ "${version}" != "${remote_shell_version}" ]];then
-            echo -e "${COLOR_GREEN}Found a new version,update now!!!${COLOR_END}"
-            echo
-            echo -n "Update shell ..."
-            if ! wget --no-check-certificate -qO $0 ${shell_download_link}; then
-                echo -e " [${COLOR_RED}failed${COLOR_END}]"
-                echo
-                exit 1
-            else
-                echo -e " [${COLOR_GREEN}OK${COLOR_END}]"
-                echo
-                echo -e "${COLOR_GREEN}Please Re-run${COLOR_END} ${COLOR_PINK}$0 ${clang_action}${COLOR_END}"
-                echo
-                exit 1
-            fi
-            exit 1
-        fi
-    fi
 }
 # Check OS
 Get_Dist_Name(){
@@ -287,7 +289,7 @@ Dispaly_Selection(){
 # Install cleanup
 install_cleanup(){
     cd ${cur_dir}
-    rm -rf ${shadowsocks_libev_ver} ${shadowsocks_libev_ver}.tar.gz manyuser.zip shadowsocksr-manyuser shadowsocks-manyuser ${libsodium_latest_file} ${libsodium_ver} ${kcptun_latest_file}
+    rm -rf .version.sh ${shadowsocks_libev_ver} ${shadowsocks_libev_ver}.tar.gz manyuser.zip shadowsocksr-manyuser shadowsocks-manyuser ${kcptun_latest_file} ${libsodium_laster_ver} ${libsodium_laster_ver}.tar.gz
 }
 check_kcptun_for_ss_ssr_installed(){
     ss_libev_installed_flag=""
@@ -319,63 +321,68 @@ check_kcptun_for_ss_ssr_installed(){
     fi
 }
 get_latest_version(){
-    rm -f ${cur_dir}/.api_*.txt
+    rm -f ${cur_dir}/.api_*.txt ${cur_dir}/.version.sh
+    if ! wget --no-check-certificate -O ${cur_dir}/.version.sh ${program_version_link}; then
+        echo -e "${COLOR_RED}Failed to download version.sh${COLOR_END}"
+    fi
+    if [ -s ${cur_dir}/.version.sh ]; then
+        [ -x ${cur_dir}/.version.sh ] && chmod +x ${cur_dir}/.version.sh 
+        . ${cur_dir}/.version.sh
+    fi
+    if [ -z ${LIBSODIUM_VER} ] || [ -z ${MBEDTLS_VER} ] || [ -z ${SS_LIBEV_VER} ] || [ -z ${SSR_VER} ] || [ -z ${KCPTUN_VER} ]; then
+        echo -e "${COLOR_RED}Error: ${COLOR_END}Get Program version failed!"
+        exit 1
+    fi
     if [[ "${ss_libev_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${ss_libev_installed_flag}" == "true" && "${clang_action}" =~ ^[Uu]|[Uu][Pp][Dd][Aa][Tt][Ee]|-[Uu]|--[Uu]|[Uu][Pp]|-[Uu][Pp]|--[Uu][Pp]$ ]]; then
-        echo -e "Loading latest version for SS-libev, please wait..."
-        ss_libev_latest_api="https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest"
+        echo -e "Loading SS-libev version, please wait..."
         if check_sys packageManager yum; then
-            ss_libev_init_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/ss_libev.init"
+            ss_libev_init_link="${SS_LIBEV_YUM_INIT}"
         elif check_sys packageManager apt; then
-            ss_libev_init_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/ss_libev_apt.init"
+            ss_libev_init_link="${SS_LIBEV_APT_INIT}"
         fi
-        ss_libev_api_file="${cur_dir}/.api_ss_libev.txt"
-        wget --no-check-certificate -qO- ${ss_libev_latest_api} > ${ss_libev_api_file}
-        #ss_latest_ver=$(cat ${ss_libev_api_file} | grep 'tag_name' | cut -d\" -f4)
-        ss_latest_ver="v2.5.6"
-        [ -z ${ss_latest_ver} ] && echo "Error: Get shadowsocks-libev latest version failed" && exit 1
-        shadowsocks_libev_ver="shadowsocks-libev-$(echo ${ss_latest_ver} | sed -e 's/^[a-zA-Z]//g')"
-        ss_libev_download_link="https://github.com/shadowsocks/shadowsocks-libev/archive/${ss_latest_ver}.tar.gz"
+        shadowsocks_libev_ver="shadowsocks-libev-${SS_LIBEV_VER}"
         if [[ "${ss_libev_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]]; then
-            echo -e "Get the ss-libev latest version:${COLOR_GREEN} ${shadowsocks_libev_ver}${COLOR_END}"
+            echo -e "Get the ss-libev version:${COLOR_GREEN} ${SS_LIBEV_VER}${COLOR_END}"
         fi
     fi
-    if [[ "${ssr_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${kcptun_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]]; then
-        if [[ ! -L /usr/local/lib/libsodium.so ]]; then
-            echo -e "Loading latest version for libsodium, please wait..."
-            libsodium_latest_api="https://api.github.com/repos/jedisct1/libsodium/releases/latest"
-            libsodium_api_file="${cur_dir}/.api_libsodium.txt"
-            wget --no-check-certificate -qO- ${libsodium_latest_api} > ${libsodium_api_file}
-            libsodium_latest_ver=$(cat ${libsodium_api_file} | grep 'tag_name' | cut -d\" -f4)
-            libsodium_latest_file=$(cat ${libsodium_api_file} | grep \"name\" | grep tar.gz | grep -v .minisig |cut -d\" -f4 | head -n 1)
-            libsodium_ver="libsodium-$(echo ${libsodium_latest_ver} | sed -e 's/^[a-zA-Z]//g')"
-            libsodium_download_link=$(cat ${libsodium_api_file} | grep \"browser_download_url\" | grep -v .minisig | cut -d\" -f4 | head -n 1)
-            if [ "${libsodium_latest_ver}" == "" ] || [ "${libsodium_latest_file}" == "" ] || [ "${libsodium_ver}" == "" ] || [ "${libsodium_download_link}" == "" ]; then
-                echo -e "${COLOR_RED}Error: Get libsodium latest version failed${COLOR_END}"
-                exit 1
-            fi
-            echo -e "Get the libsodium latest version:${COLOR_GREEN} ${libsodium_latest_file}${COLOR_END}"
+    if [[ ! -L /usr/lib/libsodium.so ]]; then
+        echo -e "Loading libsodium version, please wait..."
+        libsodium_laster_ver="libsodium-${LIBSODIUM_VER}"
+        if [ "${libsodium_laster_ver}" == "" ] || [ "${LIBSODIUM_LINK}" == "" ]; then
+            echo -e "${COLOR_RED}Error: Get libsodium version failed${COLOR_END}"
+            exit 1
         fi
+        echo -e "Get the libsodium version:${COLOR_GREEN} ${LIBSODIUM_VER}${COLOR_END}"
+    fi
+    if [ ! +x /usr/local/bin/mbedtls_hello ] && [ ! -s /usr/local/include/mbedtls/version.h ]; then
+        echo -e "Loading mbedtls version, please wait..."
+        mbedtls_laster_ver="mbedtls-${MBEDTLS_VER}"
+        if [ "${mbedtls_laster_ver}" == "" ] || [ "${MBEDTLS_LINK}" == "" ]; then
+            echo -e "${COLOR_RED}Error: Get mbedtls version failed${COLOR_END}"
+            exit 1
+        fi
+        echo -e "Get the mbedtls version:${COLOR_GREEN} ${MBEDTLS_VER}${COLOR_END}"
     fi
     if [[ "${ssr_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${ssr_installed_flag}" == "true" && "${clang_action}" =~ ^[Uu]|[Uu][Pp][Dd][Aa][Tt][Ee]|-[Uu]|--[Uu]|[Uu][Pp]|-[Uu][Pp]|--[Uu][Pp]$ ]]; then
         echo -e "Loading latest version for ShadowsocksR, please wait..."
-        ssr_download_link="https://github.com/shadowsocksr/shadowsocksr/archive/manyuser.zip"
-        ssr_latest_ver=$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/shadowsocksr/shadowsocksr/manyuser/CHANGES | head -n 1 | awk '{print $1}')
+        ssr_download_link="${SSR_LINK}"
+        ssr_latest_ver="${SSR_VER}"
         if check_sys packageManager yum; then
-            ssr_init_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/ssr.init"
+            ssr_init_link="${SSR_YUM_INIT}"
         elif check_sys packageManager apt; then
-            ssr_init_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/ssr_apt.init"
+            ssr_init_link="${SSR_APT_INIT}"
         fi
     fi
     if [[ "${kcptun_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${kcptun_installed_flag}" == "true" && "${clang_action}" =~ ^[Uu]|[Uu][Pp][Dd][Aa][Tt][Ee]|-[Uu]|--[Uu]|[Uu][Pp]|-[Uu][Pp]|--[Uu][Pp]$ ]]; then
         echo -e "Loading latest version for kcptun, please wait..."
-        kcptun_init_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/kcptun.init"
-        kcptun_latest_api="https://api.github.com/repos/xtaci/kcptun/releases/latest"
-        kcptun_api_file="${cur_dir}/.api_kcptun.txt"
-        wget --no-check-certificate -qO- ${kcptun_latest_api} > ${kcptun_api_file}
-        kcptun_latest_ver=$(cat ${kcptun_api_file} | grep 'tag_name' | cut -d\" -f4)
-        kcptun_latest_file=$(cat ${kcptun_api_file} | grep \"name\" | grep kcptun-linux-${ARCHS} | cut -d\" -f4)
-        kcptun_download_link=$(cat ${kcptun_api_file} | grep \"browser_download_url\" | grep ${kcptun_latest_ver}/kcptun-linux-${ARCHS} | cut -d\" -f4)
-        if [[ "${kcptun_latest_ver}" == "" || "${kcptun_latest_file}" == "" || "${kcptun_download_link}" == "" ]]; then
+        kcptun_init_link="${KCPTUN_INIT}"
+        kcptun_latest_file="kcptun-linux-${ARCHS}-${KCPTUN_VER}.tar.gz"
+        if [[ `getconf WORD_BIT` = '32' && `getconf LONG_BIT` = '64' ]] ; then
+            kcptun_download_link="${KCPTUN_AMD64_LINK}"
+        else
+            kcptun_download_link="${KCPTUN_386_LINK}"
+        fi
+        if [[ "${kcptun_init_link}" == "" || "${kcptun_download_link}" == "" ]]; then
             echo -e "${COLOR_RED}Error: Get kcptun latest version failed${COLOR_END}"
             exit 1
         fi
@@ -383,15 +390,34 @@ get_latest_version(){
             echo -e "Get the kcptun latest version:${COLOR_GREEN} ${kcptun_latest_file}${COLOR_END}"
         fi
     fi
-    rm -f ${cur_dir}/.api_*.txt
 }
 # Download latest
 down_kcptun_for_ss_ssr(){
+    if [ ! -L /usr/local/lib/libsodium.so ]; then
+        if [ -f ${libsodium_laster_ver}.tar.gz ]; then
+            echo "${libsodium_laster_ver}.tar.gz [found]"
+        else
+            if ! wget --no-check-certificate -O ${libsodium_laster_ver}.tar.gz ${LIBSODIUM_LINK}; then
+                echo -e "${COLOR_RED}Failed to download ${libsodium_laster_ver}.tar.gz${COLOR_END}"
+                exit 1
+            fi
+        fi
+    fi
+    if [ ! +x /usr/local/bin/mbedtls_hello ] && [ ! -s /usr/local/include/mbedtls/version.h ]; then
+        if [ -f ${mbedtls_laster_ver}-gpl.tgz ]; then
+            echo "${mbedtls_laster_ver}-gpl.tgz [found]"
+        else
+            if ! wget --no-check-certificate -O ${mbedtls_laster_ver}-gpl.tgz ${MBEDTLS_LINK}; then
+                echo -e "${COLOR_RED}Failed to download ${mbedtls_laster_ver}-gpl.tgz${COLOR_END}"
+                exit 1
+            fi
+        fi
+    fi
     if [[ "${ss_libev_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${ss_libev_installed_flag}" == "true" && "${ss_libev_update_flag}" == "true" && "${clang_action}" =~ ^[Uu]|[Uu][Pp][Dd][Aa][Tt][Ee]|-[Uu]|--[Uu]|[Uu][Pp]|-[Uu][Pp]|--[Uu][Pp]$ ]]; then
         if [ -f ${shadowsocks_libev_ver}.tar.gz ]; then
             echo "${shadowsocks_libev_ver}.tar.gz [found]"
         else
-            if ! wget --no-check-certificate -O ${shadowsocks_libev_ver}.tar.gz ${ss_libev_download_link}; then
+            if ! wget --no-check-certificate -O ${shadowsocks_libev_ver}.tar.gz ${SS_LIBEV_LINK}; then
                 echo -e "${COLOR_RED}Failed to download ${shadowsocks_libev_ver}.tar.gz${COLOR_END}"
                 exit 1
             fi
@@ -401,18 +427,6 @@ down_kcptun_for_ss_ssr(){
         if ! wget --no-check-certificate -O /etc/init.d/shadowsocks ${ss_libev_init_link}; then
             echo -e "${COLOR_RED}Failed to download shadowsocks-libev init script!${COLOR_END}"
             exit 1
-        fi
-    fi
-    if [[ "${ssr_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${kcptun_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]]; then
-        if [ ! -L /usr/local/lib/libsodium.so ]; then
-            if [ -f ${libsodium_latest_file} ]; then
-                echo "${libsodium_latest_file} [found]"
-            else
-                if ! wget --no-check-certificate -O ${libsodium_latest_file} ${libsodium_download_link}; then
-                    echo -e "${COLOR_RED}Failed to download ${libsodium_latest_file}${COLOR_END}"
-                    exit 1
-                fi
-            fi
         fi
     fi
     if [[ "${ssr_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${ssr_installed_flag}" == "true" && "${ssr_update_flag}" == "true" && "${clang_action}" =~ ^[Uu]|[Uu][Pp][Dd][Aa][Tt][Ee]|-[Uu]|--[Uu]|[Uu][Pp]|-[Uu][Pp]|--[Uu][Pp]$ ]]; then
@@ -503,19 +517,46 @@ EOF
 install_kcptun_for_ss_ssr(){
     if [[ "${ss_libev_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${ssr_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${kcptun_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]]; then
         if check_sys packageManager yum; then
-            yum install -y unzip openssl-devel gcc swig autoconf libtool libevent vim automake make psmisc curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel xmlto asciidoc pcre pcre-devel python python-devel python-setuptools
+            yum install -y epel-release
+            yum install -y unzip openssl-devel gcc swig autoconf libtool libevent vim automake make psmisc curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel xmlto asciidoc pcre pcre-devel python python-devel python-setuptools udns-devel libev-devel
             if [ $? -gt 1 ]; then
                 echo
                 echo -e "${COLOR_RED}Install support packs failed!${COLOR_END}"
                 exit 1
             fi
         elif check_sys packageManager apt; then
-            apt-get -y update && apt-get -y install curl wget vim unzip psmisc gcc swig autoconf automake make perl cpio build-essential libtool openssl libssl-dev zlib1g-dev xmlto asciidoc libpcre3 libpcre3-dev python python-dev python-pip python-m2crypto
+            apt-get -y update && apt-get -y install --no-install-recommends curl wget vim unzip psmisc gcc swig autoconf automake make perl cpio build-essential libtool openssl libssl-dev zlib1g-dev xmlto asciidoc libpcre3 libpcre3-dev python python-dev python-pip python-m2crypto libev-dev libudns-dev
             if [ $? -gt 1 ]; then
                 echo
                 echo -e "${COLOR_RED}Install support packs failed!${COLOR_END}"
                 exit 1
             fi
+        fi
+    fi
+    if [ ! -L /usr/lib/libsodium.so ]; then
+        cd ${cur_dir}
+        echo "Install libsodium for SS-Libev/SSR/KCPTUN"
+        tar xzf ${libsodium_laster_ver}.tar.gz
+        cd ${libsodium_laster_ver}
+        ./configure --prefix=/usr && make && make install
+        if [ $? -ne 0 ]; then
+            install_cleanup
+            echo -e "${COLOR_RED}libsodium install failed!${COLOR_END}"
+            exit 1
+        fi
+        echo "/usr/lib" > /etc/ld.so.conf.d/local.conf
+        ldconfig
+    fi
+    if [ ! +x /usr/local/bin/mbedtls_hello ] && [ ! -s /usr/local/include/mbedtls/version.h ]; then
+        cd ${cur_dir}
+        echo "Install mbedtls for SS-Liber..."
+        tar xzf ${mbedtls_laster_ver}-gpl.tgz
+        cd ${mbedtls_laster_ver}
+        make SHARED=1 CFLAGS=-fPIC && make install
+        if [ $? -ne 0 ]; then
+            install_cleanup
+            echo -e "${COLOR_RED}mbedtls install failed!${COLOR_END}"
+            exit 1
         fi
     fi
     if [[ "${ss_libev_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${ss_libev_installed_flag}" == "true" && "${ss_libev_update_flag}" == "true" && "${clang_action}" =~ ^[Uu]|[Uu][Pp][Dd][Aa][Tt][Ee]|-[Uu]|--[Uu]|[Uu][Pp]|-[Uu][Pp]|--[Uu][Pp]$ ]]; then
@@ -546,22 +587,6 @@ install_kcptun_for_ss_ssr(){
             echo
             echo -e "${COLOR_RED}Shadowsocks-libev install failed! Please visit ${contact_us} and contact.${COLOR_END}"
             exit 1
-        fi
-    fi
-    if [[ "${ssr_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${kcptun_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]]; then
-        if [ ! -L /usr/local/lib/libsodium.so ]; then
-            cd ${cur_dir}
-            echo "Install libsodium for SSR/KCPTUN"
-            tar zxf ${libsodium_latest_file}
-            cd ${libsodium_ver}
-            ./configure && make && make install
-            if [ $? -ne 0 ]; then
-                install_cleanup
-                echo -e "${COLOR_RED}libsodium install failed!${COLOR_END}"
-                exit 1
-            fi
-            echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
-            ldconfig
         fi
     fi
     if [[ "${ssr_installed_flag}" == "false" && "${clang_action}" =~ ^[Ii]|[Ii][Nn]|[Ii][Nn][Ss][Tt][Aa][Ll][Ll]|-[Ii]|--[Ii]$ ]] || [[ "${ssr_installed_flag}" == "true" && "${ssr_update_flag}" == "true" && "${clang_action}" =~ ^[Uu]|[Uu][Pp][Dd][Aa][Tt][Ee]|-[Uu]|--[Uu]|[Uu][Pp]|-[Uu][Pp]|--[Uu][Pp]$ ]]; then
@@ -1509,12 +1534,12 @@ update_kcptun_for_ss_ssr(){
     if [[ "${Update_Select}" == "1" || "${Update_Select}" == "4" ]]; then
         if [ "${ss_libev_installed_flag}" == "true" ]; then
             ss_libev_local_ver=$(ss-server --help | grep -i "shadowsocks-libev" | awk '{print $2}')
-            if [ -z ${ss_libev_local_ver} ] || [ -z ${ss_latest_ver:1} ]; then
+            if [ -z ${ss_libev_local_ver} ] || [ -z ${SS_LIBEV_VER} ]; then
                 echo -e "${COLOR_RED}Error: Get shadowsocks-libev latest version failed${COLOR_END}"
             else
-                echo -e "Shadowsocks-libev latest version : ${COLOR_GREEN}${ss_latest_ver:1}${COLOR_END}"
+                echo -e "Shadowsocks-libev latest version : ${COLOR_GREEN}${SS_LIBEV_VER}${COLOR_END}"
                 echo -e "Shadowsocks-libev local version  : ${COLOR_GREEN}${ss_libev_local_ver}${COLOR_END}"
-                if [[ "${ss_libev_local_ver}" != "${ss_latest_ver:1}" ]];then
+                if [[ "${ss_libev_local_ver}" != "${SS_LIBEV_VER}" ]];then
                     ss_libev_update_flag="true"
                 else
                     echo "Shadowsocks-libev local version is up-to-date."
@@ -1527,12 +1552,12 @@ update_kcptun_for_ss_ssr(){
     if [[ "${Update_Select}" == "2" || "${Update_Select}" == "4" ]]; then
         if [ "${ssr_installed_flag}" == "true" ]; then
             ssr_local_ver=$(ssr version | grep -i "shadowsocksr" | awk '{print $2}')
-            if [ -z ${ssr_local_ver} ] || [ -z ${ssr_latest_ver} ]; then
+            if [ -z ${ssr_local_ver} ] || [ -z ${SSR_VER} ]; then
                 echo -e "${COLOR_RED}Error: Get ShadowsocksR latest version failed${COLOR_END}"
             else
-                echo -e "ShadowsocksR latest version : ${COLOR_GREEN}${ssr_latest_ver}${COLOR_END}"
+                echo -e "ShadowsocksR latest version : ${COLOR_GREEN}${SSR_VER}${COLOR_END}"
                 echo -e "ShadowsocksR local version  : ${COLOR_GREEN}${ssr_local_ver}${COLOR_END}"
-                if [[ "${ssr_local_ver}" != "${ssr_latest_ver}" ]];then
+                if [[ "${ssr_local_ver}" != "${SSR_VER}" ]];then
                     ssr_update_flag="true"
                 else
                     echo "ShadowsocksR local version is up-to-date."
@@ -1545,12 +1570,12 @@ update_kcptun_for_ss_ssr(){
     if [[ "${Update_Select}" == "3" || "${Update_Select}" == "4" ]]; then
         if [ "${kcptun_installed_flag}" == "true" ]; then
             kcptun_local_ver=$(/usr/local/kcptun/kcptun --version | awk '{print $3}')
-            if [ -z ${kcptun_local_ver} ] || [ -z ${kcptun_latest_ver:1} ]; then
+            if [ -z ${kcptun_local_ver} ] || [ -z ${KCPTUN_VER} ]; then
                 echo -e "${COLOR_RED}Error: Get Kcptun latest version failed${COLOR_END}"
             else
-                echo -e "Kcptun latest version : ${COLOR_GREEN}${kcptun_latest_ver:1}${COLOR_END}"
+                echo -e "Kcptun latest version : ${COLOR_GREEN}${KCPTUN_VER}${COLOR_END}"
                 echo -e "Kcptun local version  : ${COLOR_GREEN}${kcptun_local_ver}${COLOR_END}"
-                if [[ "${kcptun_local_ver}" != "${kcptun_latest_ver:1}" ]];then
+                if [[ "${kcptun_local_ver}" != "${KCPTUN_VER}" ]];then
                     kcptun_update_flag="true"
                 else
                     echo "Kcptun local version is up-to-date."
