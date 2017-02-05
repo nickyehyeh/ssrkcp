@@ -15,7 +15,7 @@ export SS_LIBEV_YUM_INIT="https://raw.githubusercontent.com/clangcn/onekey-insta
 export SS_LIBEV_APT_INIT="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/ss_libev_apt.init"
 
 # SSR
-#export SSR_VER=3.0.2
+export SSR_VER=3.0.2
 export SSR_LINK="https://github.com/shadowsocksr/shadowsocksr/archive/manyuser.zip"
 export SSR_YUM_INIT="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/ssr.init"
 export SSR_APT_INIT="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/kcptun_for_ss_ssr/ssr_apt.init"
